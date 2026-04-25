@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../services/api";
+import { getDisplayEntries, getPlayerImageUrl, normalizePlayer } from "../utils/playerData";
 
 function PlayerDetailsPage() {
   const { id } = useParams();
@@ -17,7 +18,7 @@ function PlayerDetailsPage() {
         const response = await api.get(`/api/players/${id}`);
 
         if (mounted) {
-          setPlayer(response.data);
+          setPlayer(normalizePlayer(response.data));
           setError("");
         }
       } catch (requestError) {
@@ -57,13 +58,28 @@ function PlayerDetailsPage() {
   return (
     <section className="page-grid">
       <div className="card">
-        <div className="card-row">
+        <div className="player-hero">
+          <div className="player-thumb large">
+            {getPlayerImageUrl(player) ? (
+              <img src={getPlayerImageUrl(player)} alt={player.name} />
+            ) : (
+              <span>{player.name.slice(0, 1).toUpperCase()}</span>
+            )}
+          </div>
+
           <div>
             <h2>{player.name ?? player.playerName ?? "Player"}</h2>
-            <p>Detalhes retornados por `GET /api/players/{id}`.</p>
+            <p>
+              Detalhes retornados por `GET /api/players/{id}`.
+              {player.position ? ` Posicao: ${player.position}.` : ""}
+              {player.team ? ` Time: ${player.team}.` : ""}
+            </p>
           </div>
 
           <div className="actions-cell">
+            <Link to="/" className="secondary-button">
+              Home
+            </Link>
             <Link to={`/players/${id}/edit`} className="primary-button">
               Editar
             </Link>
@@ -74,9 +90,9 @@ function PlayerDetailsPage() {
         </div>
 
         <dl className="details-grid">
-          {Object.entries(player).map(([key, value]) => (
+          {getDisplayEntries(player).map(({ key, label, value }) => (
             <div key={key} className="detail-item">
-              <dt>{key}</dt>
+              <dt>{label}</dt>
               <dd>{String(value)}</dd>
             </div>
           ))}

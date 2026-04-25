@@ -78,6 +78,24 @@ select {
   gap: 20px;
 }
 
+.stats-grid,
+.form-grid,
+.player-grid,
+.team-result-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.stats-grid,
+.player-grid,
+.team-result-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
 .two-columns {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -91,13 +109,21 @@ select {
 }
 
 .login-hero,
-.card {
+.card,
+.hero-card {
   background: rgba(255, 255, 255, 0.86);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(113, 138, 176, 0.18);
   border-radius: 20px;
   box-shadow: 0 20px 55px rgba(19, 34, 56, 0.08);
   padding: 24px;
+}
+
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 18px;
 }
 
 .login-hero {
@@ -136,6 +162,14 @@ select {
 }
 
 .field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #c8d4e7;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.field select {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #c8d4e7;
@@ -231,6 +265,71 @@ td {
   color: #334155;
 }
 
+.form-section {
+  margin-top: 12px;
+}
+
+.form-section h3,
+.player-card h3,
+.team-card h3 {
+  margin: 0 0 10px;
+}
+
+.player-card,
+.team-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: #f8fbff;
+  border: 1px solid #dde7f5;
+}
+
+.player-card-header,
+.player-hero {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.player-card-header p,
+.picker-copy span {
+  margin: 4px 0 0;
+  color: #62748a;
+}
+
+.player-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #dfeaff 0%, #b8d0ff 100%);
+  color: #1f3c88;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.player-thumb.large {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+}
+
+.player-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0;
+  color: #4d6077;
+}
+
 .player-picker {
   display: grid;
   gap: 10px;
@@ -240,6 +339,34 @@ td {
   padding-right: 6px;
 }
 
+.picker-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid #d7e3f5;
+  background: #f8fbff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.picker-card.active {
+  border-color: #1357d6;
+  background: #eaf2ff;
+}
+
+.picker-copy {
+  display: grid;
+}
+
+.captains-grid {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
 .result-box {
   margin: 0;
   padding: 16px;
@@ -247,6 +374,11 @@ td {
   background: #0f172a;
   color: #e2e8f0;
   overflow: auto;
+}
+
+.result-box.light {
+  background: #f4f8ff;
+  color: #1f2937;
 }
 
 @media (max-width: 900px) {

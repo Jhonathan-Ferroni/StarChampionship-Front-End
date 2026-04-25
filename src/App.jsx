@@ -1,5 +1,6 @@
 // File: src/App.jsx
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import PlayersListPage from "./pages/PlayersList";
 import PlayerDetailsPage from "./pages/PlayerDetails";
@@ -32,6 +33,7 @@ function AppShell({ children }) {
         {isAuthenticated ? (
           <div className="topbar-actions">
             <nav className="nav-links" aria-label="Navegacao principal">
+              <Link to="/">Home</Link>
               <Link to="/players">Players</Link>
               <Link to="/players/new">Novo player</Link>
               <Link to="/generator">Generator</Link>
@@ -53,7 +55,14 @@ function App() {
   return (
     <AppShell>
       <Routes>
-        <Route path="/" element={<Navigate to="/players" replace />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/players"

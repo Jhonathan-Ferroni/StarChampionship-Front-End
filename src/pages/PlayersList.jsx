@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { getPlayerImageUrl, normalizePlayers } from "../utils/playerData";
 
 function PlayersListPage() {
   const [players, setPlayers] = useState([]);
@@ -16,7 +17,7 @@ function PlayersListPage() {
         const response = await api.get("/api/players");
 
         if (mounted) {
-          setPlayers(Array.isArray(response.data) ? response.data : []);
+          setPlayers(normalizePlayers(response.data));
           setError("");
         }
       } catch (requestError) {
@@ -77,45 +78,65 @@ function PlayersListPage() {
         <div className="card">
           <div className="card-row">
             <strong>{players.length} players</strong>
-            <Link to="/players/new" className="primary-button">
-              Novo player
-            </Link>
+            <div className="actions-cell">
+              <Link to="/" className="secondary-button">
+                Home
+              </Link>
+              <Link to="/players/new" className="primary-button">
+                Novo player
+              </Link>
+            </div>
           </div>
 
           {players.length === 0 ? (
             <p>Nenhum player cadastrado.</p>
           ) : (
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Overall</th>
-                    <th>Acoes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {players.map((player) => (
-                    <tr key={player.id}>
-                      <td>{player.id}</td>
-                      <td>{player.name ?? player.playerName ?? "Sem nome"}</td>
-                      <td>{player.overall ?? "-"}</td>
-                      <td className="actions-cell">
-                        <Link to={`/players/${player.id}`}>Detalhes</Link>
-                        <Link to={`/players/${player.id}/edit`}>Editar</Link>
-                        <button
-                          type="button"
-                          className="danger-button"
-                          onClick={() => handleDelete(player.id)}
-                        >
-                          Excluir
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="player-grid">
+              {players.map((player) => (
+                <article key={player.idLabel} className="player-card">
+                  <div className="player-card-header">
+                    <div className="player-thumb">
+                      {getPlayerImageUrl(player) ? (
+                        <img src={getPlayerImageUrl(player)} alt={player.name} />
+                      ) : (
+                        <span>{player.name.slice(0, 1).toUpperCase()}</span>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3>{player.name}</h3>
+                      <p>
+                        ID {player.idLabel}
+                        {player.position ? ` • ${player.position}` : ""}
+                        {player.team ? ` • ${player.team}` : ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="player-meta">
+                    <strong>Overall {player.overall ?? "-"}</strong>
+                    {player.imageUrl ? (
+                      <a href={player.imageUrl} target="_blank" rel="noreferrer">
+                        Abrir imagem
+                      </a>
+                    ) : (
+                      <span>Sem imagem</span>
+                    )}
+                  </div>
+
+                  <div className="actions-cell">
+                    <Link to={`/players/${player.id}`}>Detalhes</Link>
+                    <Link to={`/players/${player.id}/edit`}>Editar</Link>
+                    <button
+                      type="button"
+                      className="danger-button"
+                      onClick={() => handleDelete(player.id)}
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
         </div>
