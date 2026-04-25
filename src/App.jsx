@@ -27,7 +27,7 @@ function AppShell({ children }) {
       <header className="topbar">
         <div>
           <h1>StarChampionship</h1>
-          <p>Gerencie autenticacao, jogadores e geracao de times.</p>
+          <p className="Title">O melhor balanceador de times de futebol!</p>
         </div>
 
         {isAuthenticated ? (

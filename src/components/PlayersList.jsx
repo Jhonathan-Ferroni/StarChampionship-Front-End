@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../services/api";
+import { formatOverall } from "../utils/playerData";
 
 function PlayersList() {
   const [players, setPlayers] = useState([]);
@@ -42,7 +43,7 @@ function PlayersList() {
         <ul>
           {players.map((player) => (
             <li key={player.id}>
-              <strong>{player.name}</strong> - Overall: {player.overall}
+              <strong>{player.name}</strong> - Overall: {formatOverall(player.overall)}
             </li>
           ))}
         </ul>

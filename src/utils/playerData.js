@@ -26,7 +26,6 @@ const PLAYER_ALIAS_GROUPS = {
   speed: ["speed", "Speed", "pace", "Pace"],
   strength: ["strength", "Strength", "physical", "Physical", "physicality", "Physicality"],
   team: ["team", "Team", "club", "Club"],
-  position: ["position", "Position", "role", "Role"],
   nationality: ["nationality", "Nationality", "country", "Country"],
   age: ["age", "Age"],
   height: ["height", "Height"],
@@ -39,8 +38,16 @@ const PLAYER_ALIAS_GROUPS = {
   physical: ["physical", "Physical", "physicality", "Physicality"],
 };
 
+const OMITTED_PLAYER_FIELDS = ["position", "Position", "role", "Role"];
+
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function omitPlayerFields(source) {
+  return Object.fromEntries(
+    Object.entries(source).filter(([key]) => !OMITTED_PLAYER_FIELDS.includes(key)),
+  );
 }
 
 function pickFirst(source, keys) {
@@ -91,11 +98,11 @@ export function extractCollection(payload, preferredKeys = []) {
 
 export function normalizePlayer(rawPlayer, index = 0) {
   const player = isPlainObject(rawPlayer) ? rawPlayer : {};
+  const sanitizedPlayer = omitPlayerFields(player);
   const id = pickFirst(player, PLAYER_ALIAS_GROUPS.id) ?? index + 1;
   const name = pickFirst(player, PLAYER_ALIAS_GROUPS.name) ?? `Player ${index + 1}`;
   const overall = pickFirst(player, PLAYER_ALIAS_GROUPS.overall);
   const imageUrl = pickFirst(player, PLAYER_ALIAS_GROUPS.imageUrl) ?? "";
-  const position = pickFirst(player, PLAYER_ALIAS_GROUPS.position) ?? "";
   const team = pickFirst(player, PLAYER_ALIAS_GROUPS.team) ?? "";
   const shoot = pickFirst(player, PLAYER_ALIAS_GROUPS.shoot);
   const dribble = pickFirst(player, PLAYER_ALIAS_GROUPS.dribble);
@@ -106,14 +113,13 @@ export function normalizePlayer(rawPlayer, index = 0) {
   const strength = pickFirst(player, PLAYER_ALIAS_GROUPS.strength);
 
   return {
-    ...player,
-    __raw: player,
+    ...sanitizedPlayer,
+    __raw: sanitizedPlayer,
     id,
     idLabel: String(id),
     name,
     overall,
     imageUrl,
-    position,
     team,
     shoot,
     dribble,
@@ -144,6 +150,24 @@ export function formatFieldLabel(key) {
     .trim();
 }
 
+export function isOmittedPlayerField(key) {
+  return OMITTED_PLAYER_FIELDS.includes(key);
+}
+
+export function formatOverall(value, fallback = "-") {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  const numeric = Number(value);
+
+  if (Number.isNaN(numeric)) {
+    return String(value);
+  }
+
+  return String(Math.round(numeric));
+}
+
 export function getDisplayEntries(player) {
   if (!isPlainObject(player)) {
     return [];
@@ -151,7 +175,7 @@ export function getDisplayEntries(player) {
 
   return Object.entries(player)
     .filter(([key, value]) => {
-      if (key.startsWith("__")) {
+      if (key.startsWith("__") || isOmittedPlayerField(key)) {
         return false;
       }
 
@@ -160,7 +184,7 @@ export function getDisplayEntries(player) {
     .map(([key, value]) => ({
       key,
       label: formatFieldLabel(key),
-      value,
+      value: key.toLowerCase() === "overall" ? formatOverall(value) : value,
     }));
 }
 
@@ -224,7 +248,7 @@ export function buildPlayerPayload(formValues, originalPlayer = {}, templatePlay
     payload[fieldKey] = value === "" ? null : value;
   }
 
-  return payload;
+  return omitPlayerFields(payload);
 }
 
 export function getTeamCollection(result) {

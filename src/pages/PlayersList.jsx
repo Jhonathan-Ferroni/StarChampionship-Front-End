@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
-import { getPlayerImageUrl, normalizePlayers } from "../utils/playerData";
+import {
+  formatOverall,
+  getPlayerImageUrl,
+  normalizePlayers,
+} from "../utils/playerData";
 
 function PlayersListPage() {
   const [players, setPlayers] = useState([]);
@@ -107,14 +111,13 @@ function PlayersListPage() {
                       <h3>{player.name}</h3>
                       <p>
                         ID {player.idLabel}
-                        {player.position ? ` • ${player.position}` : ""}
                         {player.team ? ` • ${player.team}` : ""}
                       </p>
                     </div>
                   </div>
 
                   <div className="player-meta">
-                    <strong>Overall {player.overall ?? "-"}</strong>
+                    <strong>Overall {formatOverall(player.overall)}</strong>
                     {player.imageUrl ? (
                       <a href={player.imageUrl} target="_blank" rel="noreferrer">
                         Abrir imagem

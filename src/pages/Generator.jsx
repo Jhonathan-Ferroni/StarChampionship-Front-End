@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import {
+  formatOverall,
   getPlayerImageUrl,
+  getTeamCollection,
+  normalizePlayer,
   normalizePlayers,
 } from "../utils/playerData";
 
@@ -134,6 +137,14 @@ function GeneratorPage() {
   const selectedPlayers = players.filter((player) =>
     selectedIds.includes(player.idLabel),
   );
+  const teams = result ? getTeamCollection(result) : [];
+  const marginNumber = margin === "" ? null : Number(margin);
+  const balanceScore = result?.Score;
+  const balanceLimit = Number.isNaN(marginNumber) ? null : marginNumber;
+  const isBalanced =
+    typeof balanceScore === "number" &&
+    typeof balanceLimit === "number" &&
+    balanceScore <= balanceLimit;
 
   async function handleGenerate(event) {
     event.preventDefault();
@@ -203,8 +214,100 @@ function GeneratorPage() {
   }
 
   return (
-    <section className="page-grid two-columns">
-      <form className="card" onSubmit={handleGenerate}>
+    <section className="page-grid generator-layout">
+      <div className="card generator-result-panel">
+        <div className="section-heading">
+          <h2>Resultado</h2>
+          <p>Modo atual: {generatorMode === "api" ? "API" : "Fallback local"}.</p>
+        </div>
+
+        {result ? (
+          <div className="page-grid">
+            <div className="generator-summary-bar">
+              <div className="generator-summary-pill">
+                <span>Times</span>
+                <strong>{teams.length || Number(numberOfTeams) || 0}</strong>
+              </div>
+
+              {typeof balanceScore === "number" ? (
+                <div
+                  className={`generator-summary-pill ${isBalanced ? "success" : "warning"}`}
+                >
+                  <span>Equilibrio</span>
+                  <strong>{Math.round(balanceScore)}</strong>
+                </div>
+              ) : null}
+
+              {balanceLimit !== null && !Number.isNaN(balanceLimit) ? (
+                <div className="generator-summary-pill">
+                  <span>Margem alvo</span>
+                  <strong>{Math.round(balanceLimit)}</strong>
+                </div>
+              ) : null}
+            </div>
+
+            {teams.length > 0 ? (
+              <div className="team-result-grid">
+                {teams.map((team, index) => {
+                  const teamPlayers = normalizePlayers(team.Players ?? team.players ?? []);
+                  const totalScore = Number(team.TotalScore ?? team.totalScore ?? 0);
+
+                  return (
+                    <article key={index} className="team-card generator-team-card">
+                      <div className="generator-team-header">
+                        <div>
+                          <h3>Time {team.TeamNumber ?? index + 1}</h3>
+                          <p>{teamPlayers.length} jogadores selecionados</p>
+                        </div>
+
+                        <div className="generator-team-score">
+                          <span>Total</span>
+                          <strong>{Math.round(totalScore)}</strong>
+                        </div>
+                      </div>
+
+                      <div className="team-player-grid">
+                        {teamPlayers.map((player, playerIndex) => {
+                          const normalizedPlayer = normalizePlayer(player, playerIndex);
+
+                          return (
+                            <article
+                              key={`${normalizedPlayer.idLabel}-${playerIndex}`}
+                              className="result-player-card"
+                            >
+                              <div className="player-thumb result-thumb">
+                                {getPlayerImageUrl(normalizedPlayer) ? (
+                                  <img
+                                    src={getPlayerImageUrl(normalizedPlayer)}
+                                    alt={normalizedPlayer.name}
+                                  />
+                                ) : (
+                                  <span>{normalizedPlayer.name.slice(0, 1).toUpperCase()}</span>
+                                )}
+                              </div>
+
+                              <div className="result-player-copy">
+                                <strong>{normalizedPlayer.name}</strong>
+                                <span>Overall {formatOverall(normalizedPlayer.overall)}</span>
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p>Nenhum time retornado.</p>
+            )}
+          </div>
+        ) : (
+          <p>Nenhum sorteio executado ainda.</p>
+        )}
+      </div>
+
+      <form className="card generator-controls" onSubmit={handleGenerate}>
         <div className="section-heading">
           <h2>Generator</h2>
           <p>
@@ -235,27 +338,29 @@ function GeneratorPage() {
 
         {error ? <div className="alert error">{error}</div> : null}
 
-        <label className="field">
-          <span>Numero de times</span>
-          <input
-            type="number"
-            min="2"
-            value={numberOfTeams}
-            onChange={(event) => setNumberOfTeams(event.target.value)}
-            required
-          />
-        </label>
+        <div className="generator-toolbar">
+          <label className="field">
+            <span>Numero de times</span>
+            <input
+              type="number"
+              min="2"
+              value={numberOfTeams}
+              onChange={(event) => setNumberOfTeams(event.target.value)}
+              required
+            />
+          </label>
 
-        <label className="field">
-          <span>Margem</span>
-          <input
-            type="number"
-            min="0"
-            value={margin}
-            onChange={(event) => setMargin(event.target.value)}
-            placeholder="Opcional"
-          />
-        </label>
+          <label className="field">
+            <span>Margem</span>
+            <input
+              type="number"
+              min="0"
+              value={margin}
+              onChange={(event) => setMargin(event.target.value)}
+              placeholder="Opcional"
+            />
+          </label>
+        </div>
 
         <label className="checkbox-field">
           <input
@@ -266,38 +371,41 @@ function GeneratorPage() {
           <span>Usar capitaes fixos</span>
         </label>
 
-        <div className="player-picker">
-          <strong>Players disponiveis ({selectedIds.length} selecionados)</strong>
-          {loading ? (
-            <p>Carregando lista para o generator...</p>
-          ) : players.length === 0 ? (
-            <p>Nenhum player retornado pela API para o generator.</p>
-          ) : (
-            players.map((player) => (
-              <button
-                key={player.idLabel}
-                type="button"
-                className={`picker-card ${selectedIds.includes(player.idLabel) ? "active" : ""}`}
-                onClick={() => togglePlayer(player.idLabel)}
-              >
-                <div className="player-thumb">
-                  {getPlayerImageUrl(player) ? (
-                    <img src={getPlayerImageUrl(player)} alt={player.name} />
-                  ) : (
-                    <span>{player.name.slice(0, 1).toUpperCase()}</span>
-                  )}
-                </div>
+        <div className="player-picker-block">
+          <div className="player-picker-heading">
+            <strong>Players disponiveis</strong>
+            <span>{selectedIds.length} selecionados</span>
+          </div>
 
-                <div className="picker-copy">
-                  <strong>{player.name}</strong>
-                  <span>
-                    {player.position || "Sem posicao"}
-                    {player.overall ? ` • Overall ${player.overall}` : ""}
-                  </span>
-                </div>
-              </button>
-            ))
-          )}
+          <div className="player-picker expanded">
+            {loading ? (
+              <p>Carregando lista para o generator...</p>
+            ) : players.length === 0 ? (
+              <p>Nenhum player retornado pela API para o generator.</p>
+            ) : (
+              players.map((player) => (
+                <button
+                  key={player.idLabel}
+                  type="button"
+                  className={`picker-card large ${selectedIds.includes(player.idLabel) ? "active" : ""}`}
+                  onClick={() => togglePlayer(player.idLabel)}
+                >
+                  <div className="player-thumb picker-thumb">
+                    {getPlayerImageUrl(player) ? (
+                      <img src={getPlayerImageUrl(player)} alt={player.name} />
+                    ) : (
+                      <span>{player.name.slice(0, 1).toUpperCase()}</span>
+                    )}
+                  </div>
+
+                  <div className="picker-copy">
+                    <strong>{player.name}</strong>
+                    <span>Overall {formatOverall(player.overall)}</span>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
         </div>
 
         {hasFixedCaptains ? (
@@ -325,34 +433,6 @@ function GeneratorPage() {
           {submitting ? "Gerando..." : "Gerar times"}
         </button>
       </form>
-
-      <div className="card">
-        <div className="section-heading">
-          <h2>Resultado</h2>
-          <p>Modo atual: {generatorMode === "api" ? "API" : "Fallback local"}.</p>
-        </div>
-
-        {result ? (
-          <div className="page-grid">
-            {Array.isArray(result.Teams) && result.Teams.length > 0 ? (
-              <div className="team-result-grid">
-                {result.Teams.map((team, index) => (
-                  <article key={index} className="team-card">
-                    <h3>Time {index + 1}</h3>
-                    <pre className="result-box light">
-                      {JSON.stringify(team, null, 2)}
-                    </pre>
-                  </article>
-                ))}
-              </div>
-            ) : null}
-
-            <pre className="result-box">{JSON.stringify(result, null, 2)}</pre>
-          </div>
-        ) : (
-          <p>Nenhum sorteio executado ainda.</p>
-        )}
-      </div>
     </section>
   );
 }

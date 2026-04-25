@@ -5,6 +5,7 @@ import api from "../services/api";
 import {
   buildPlayerPayload,
   formatFieldLabel,
+  isOmittedPlayerField,
   normalizePlayers,
   toFormValue,
 } from "../utils/playerData";
@@ -13,9 +14,19 @@ const fieldGroups = [
   {
     title: "Basico",
     fields: [
-      { key: "name", label: "Nome", type: "text", required: true, placeholder: "Nome do player" },
-      { key: "overall", label: "Overall", type: "text", placeholder: "Ex.: 74.75" },
-      { key: "imageUrl", label: "Image URL", type: "url", placeholder: "https://..." },
+      {
+        key: "name",
+        label: "Nome",
+        type: "text",
+        required: true,
+        placeholder: "Nome do player",
+      },
+      {
+        key: "imageUrl",
+        label: "Image URL",
+        type: "url",
+        placeholder: "https://...",
+      },
     ],
   },
   {
@@ -81,12 +92,20 @@ function PlayerFormPage({ mode = "create" }) {
               setPlayer((currentPlayer) => ({
                 ...currentPlayer,
                 ...Object.fromEntries(
-                  Object.keys(baseFormValues).map((key) => [key, toFormValue(loadedPlayer[key])]),
+                  Object.keys(baseFormValues).map((key) => [
+                    key,
+                    toFormValue(loadedPlayer[key]),
+                  ]),
                 ),
                 name: toFormValue(
-                  loadedPlayer.name ?? loadedPlayer.Name ?? loadedPlayer.playerName ?? loadedPlayer.PlayerName,
+                  loadedPlayer.name ??
+                    loadedPlayer.Name ??
+                    loadedPlayer.playerName ??
+                    loadedPlayer.PlayerName,
                 ),
-                overall: toFormValue(loadedPlayer.overall ?? loadedPlayer.Overall),
+                overall: toFormValue(
+                  loadedPlayer.overall ?? loadedPlayer.Overall,
+                ),
                 imageUrl: toFormValue(
                   loadedPlayer.imageUrl ??
                     loadedPlayer.ImageUrl ??
@@ -114,10 +133,16 @@ function PlayerFormPage({ mode = "create" }) {
                   loadedPlayer.ballControl ?? loadedPlayer.BallControl,
                 ),
                 pass: toFormValue(
-                  loadedPlayer.pass ?? loadedPlayer.Pass ?? loadedPlayer.passing ?? loadedPlayer.Passing,
+                  loadedPlayer.pass ??
+                    loadedPlayer.Pass ??
+                    loadedPlayer.passing ??
+                    loadedPlayer.Passing,
                 ),
                 speed: toFormValue(
-                  loadedPlayer.speed ?? loadedPlayer.Speed ?? loadedPlayer.pace ?? loadedPlayer.Pace,
+                  loadedPlayer.speed ??
+                    loadedPlayer.Speed ??
+                    loadedPlayer.pace ??
+                    loadedPlayer.Pace,
                 ),
                 defense: toFormValue(
                   loadedPlayer.defense ??
@@ -171,6 +196,7 @@ function PlayerFormPage({ mode = "create" }) {
                 Object.entries(loadedPlayer)
                   .filter(
                     ([key, value]) =>
+                      !isOmittedPlayerField(key) &&
                       !knownKeys.has(key) &&
                       value !== null &&
                       value !== undefined &&
@@ -189,6 +215,7 @@ function PlayerFormPage({ mode = "create" }) {
                   Object.entries(loadedPlayer)
                     .filter(
                       ([key, value]) =>
+                        !isOmittedPlayerField(key) &&
                         !knownKeys.has(key) &&
                         value !== null &&
                         value !== undefined &&
@@ -296,7 +323,9 @@ function PlayerFormPage({ mode = "create" }) {
                   <input
                     type={field.type}
                     value={player[field.key] ?? ""}
-                    onChange={(event) => handleChange(field.key, event.target.value)}
+                    onChange={(event) =>
+                      handleChange(field.key, event.target.value)
+                    }
                     placeholder={field.placeholder}
                     required={field.required}
                   />
@@ -316,7 +345,9 @@ function PlayerFormPage({ mode = "create" }) {
                   <input
                     type={field.type}
                     value={player[field.key] ?? ""}
-                    onChange={(event) => handleChange(field.key, event.target.value)}
+                    onChange={(event) =>
+                      handleChange(field.key, event.target.value)
+                    }
                   />
                 </label>
               ))}

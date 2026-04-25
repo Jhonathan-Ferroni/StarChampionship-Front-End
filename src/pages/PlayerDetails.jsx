@@ -2,7 +2,12 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../services/api";
-import { getDisplayEntries, getPlayerImageUrl, normalizePlayer } from "../utils/playerData";
+import {
+  formatOverall,
+  getDisplayEntries,
+  getPlayerImageUrl,
+  normalizePlayer,
+} from "../utils/playerData";
 
 function PlayerDetailsPage() {
   const { id } = useParams();
@@ -71,8 +76,10 @@ function PlayerDetailsPage() {
             <h2>{player.name ?? player.playerName ?? "Player"}</h2>
             <p>
               Detalhes retornados por `GET /api/players/{id}`.
-              {player.position ? ` Posicao: ${player.position}.` : ""}
               {player.team ? ` Time: ${player.team}.` : ""}
+              {player.overall !== undefined && player.overall !== null && player.overall !== ""
+                ? ` Overall: ${formatOverall(player.overall)}.`
+                : ""}
             </p>
           </div>
 

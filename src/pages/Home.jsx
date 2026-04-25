@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
-import { normalizePlayers } from "../utils/playerData";
+import { formatOverall, normalizePlayers } from "../utils/playerData";
 
 function HomePage() {
   const [info, setInfo] = useState(null);
@@ -27,14 +27,15 @@ function HomePage() {
           withImage: players.filter((player) => player.imageUrl).length,
           averageOverall:
             players.length > 0
-              ? (
+              ? formatOverall(
                   players.reduce(
                     (total, player) =>
                       total + (Number(player.overall) || 0),
                     0,
-                  ) / players.length
-                ).toFixed(2)
-              : "0.00",
+                  ) / players.length,
+                  "0",
+                )
+              : "0",
         });
 
         setHealth({
@@ -46,7 +47,7 @@ function HomePage() {
       } catch {
         if (mounted) {
           setError("Nao foi possivel carregar os dados iniciais da aplicacao.");
-          setInfo({ totalPlayers: 0, withImage: 0, averageOverall: "0.00" });
+          setInfo({ totalPlayers: 0, withImage: 0, averageOverall: "0" });
           setHealth({
             apiStatus: "offline",
             playersEndpoint: "/api/players",
