@@ -18,6 +18,13 @@ const PLAYER_ALIAS_GROUPS = {
   name: ["name", "Name", "playerName", "PlayerName"],
   overall: ["overall", "Overall"],
   imageUrl: ["imageUrl", "ImageUrl", "photoUrl", "PhotoUrl", "avatarUrl", "AvatarUrl"],
+  shoot: ["shoot", "Shoot", "shooting", "Shooting", "finishing", "Finishing"],
+  dribble: ["dribble", "Dribble", "dribbling", "Dribbling"],
+  firstTouch: ["firstTouch", "FirstTouch"],
+  ballControl: ["ballControl", "BallControl"],
+  pass: ["pass", "Pass", "passing", "Passing"],
+  speed: ["speed", "Speed", "pace", "Pace"],
+  strength: ["strength", "Strength", "physical", "Physical", "physicality", "Physicality"],
   team: ["team", "Team", "club", "Club"],
   position: ["position", "Position", "role", "Role"],
   nationality: ["nationality", "Nationality", "country", "Country"],
@@ -90,6 +97,13 @@ export function normalizePlayer(rawPlayer, index = 0) {
   const imageUrl = pickFirst(player, PLAYER_ALIAS_GROUPS.imageUrl) ?? "";
   const position = pickFirst(player, PLAYER_ALIAS_GROUPS.position) ?? "";
   const team = pickFirst(player, PLAYER_ALIAS_GROUPS.team) ?? "";
+  const shoot = pickFirst(player, PLAYER_ALIAS_GROUPS.shoot);
+  const dribble = pickFirst(player, PLAYER_ALIAS_GROUPS.dribble);
+  const firstTouch = pickFirst(player, PLAYER_ALIAS_GROUPS.firstTouch);
+  const ballControl = pickFirst(player, PLAYER_ALIAS_GROUPS.ballControl);
+  const pass = pickFirst(player, PLAYER_ALIAS_GROUPS.pass);
+  const speed = pickFirst(player, PLAYER_ALIAS_GROUPS.speed);
+  const strength = pickFirst(player, PLAYER_ALIAS_GROUPS.strength);
 
   return {
     ...player,
@@ -101,6 +115,13 @@ export function normalizePlayer(rawPlayer, index = 0) {
     imageUrl,
     position,
     team,
+    shoot,
+    dribble,
+    firstTouch,
+    ballControl,
+    pass,
+    speed,
+    strength,
   };
 }
 
@@ -160,6 +181,13 @@ function coerceValue(fieldKey, value) {
       "weight",
       "pace",
       "shooting",
+      "shoot",
+      "dribble",
+      "firstTouch",
+      "ballControl",
+      "pass",
+      "speed",
+      "strength",
       "passing",
       "dribbling",
       "defense",

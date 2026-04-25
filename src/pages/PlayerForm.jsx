@@ -14,30 +14,26 @@ const fieldGroups = [
     title: "Basico",
     fields: [
       { key: "name", label: "Nome", type: "text", required: true, placeholder: "Nome do player" },
-      { key: "overall", label: "Overall", type: "number", placeholder: "Ex.: 87" },
+      { key: "overall", label: "Overall", type: "text", placeholder: "Ex.: 74.75" },
       { key: "imageUrl", label: "Image URL", type: "url", placeholder: "https://..." },
-      { key: "position", label: "Posicao", type: "text", placeholder: "Ex.: ST" },
-      { key: "team", label: "Time", type: "text", placeholder: "Nome do time" },
-      { key: "nationality", label: "Nacionalidade", type: "text", placeholder: "Pais" },
     ],
   },
   {
-    title: "Fisico",
+    title: "Tecnica",
     fields: [
-      { key: "age", label: "Idade", type: "number" },
-      { key: "height", label: "Altura", type: "number" },
-      { key: "weight", label: "Peso", type: "number" },
+      { key: "shoot", label: "Shoot", type: "number" },
+      { key: "dribble", label: "Dribble", type: "number" },
+      { key: "firstTouch", label: "First Touch", type: "number" },
+      { key: "ballControl", label: "Ball Control", type: "number" },
+      { key: "pass", label: "Pass", type: "number" },
     ],
   },
   {
     title: "Atributos",
     fields: [
-      { key: "pace", label: "Pace", type: "number" },
-      { key: "shooting", label: "Shooting", type: "number" },
-      { key: "passing", label: "Passing", type: "number" },
-      { key: "dribbling", label: "Dribbling", type: "number" },
+      { key: "speed", label: "Speed", type: "number" },
       { key: "defense", label: "Defense", type: "number" },
-      { key: "physical", label: "Physical", type: "number" },
+      { key: "strength", label: "Strength", type: "number" },
     ],
   },
 ];
@@ -97,40 +93,42 @@ function PlayerFormPage({ mode = "create" }) {
                     loadedPlayer.photoUrl ??
                     loadedPlayer.PhotoUrl,
                 ),
-                position: toFormValue(
-                  loadedPlayer.position ?? loadedPlayer.Position ?? loadedPlayer.role ?? loadedPlayer.Role,
-                ),
-                team: toFormValue(
-                  loadedPlayer.team ?? loadedPlayer.Team ?? loadedPlayer.club ?? loadedPlayer.Club,
-                ),
-                nationality: toFormValue(
-                  loadedPlayer.nationality ??
-                    loadedPlayer.Nationality ??
-                    loadedPlayer.country ??
-                    loadedPlayer.Country,
-                ),
-                age: toFormValue(loadedPlayer.age ?? loadedPlayer.Age),
-                height: toFormValue(loadedPlayer.height ?? loadedPlayer.Height),
-                weight: toFormValue(loadedPlayer.weight ?? loadedPlayer.Weight),
-                pace: toFormValue(
-                  loadedPlayer.pace ?? loadedPlayer.Pace ?? loadedPlayer.speed ?? loadedPlayer.Speed,
-                ),
-                shooting: toFormValue(
-                  loadedPlayer.shooting ??
+                shoot: toFormValue(
+                  loadedPlayer.shoot ??
+                    loadedPlayer.Shoot ??
+                    loadedPlayer.shooting ??
                     loadedPlayer.Shooting ??
                     loadedPlayer.finishing ??
                     loadedPlayer.Finishing,
                 ),
-                passing: toFormValue(loadedPlayer.passing ?? loadedPlayer.Passing),
-                dribbling: toFormValue(loadedPlayer.dribbling ?? loadedPlayer.Dribbling),
+                dribble: toFormValue(
+                  loadedPlayer.dribble ??
+                    loadedPlayer.Dribble ??
+                    loadedPlayer.dribbling ??
+                    loadedPlayer.Dribbling,
+                ),
+                firstTouch: toFormValue(
+                  loadedPlayer.firstTouch ?? loadedPlayer.FirstTouch,
+                ),
+                ballControl: toFormValue(
+                  loadedPlayer.ballControl ?? loadedPlayer.BallControl,
+                ),
+                pass: toFormValue(
+                  loadedPlayer.pass ?? loadedPlayer.Pass ?? loadedPlayer.passing ?? loadedPlayer.Passing,
+                ),
+                speed: toFormValue(
+                  loadedPlayer.speed ?? loadedPlayer.Speed ?? loadedPlayer.pace ?? loadedPlayer.Pace,
+                ),
                 defense: toFormValue(
                   loadedPlayer.defense ??
                     loadedPlayer.Defense ??
                     loadedPlayer.defending ??
                     loadedPlayer.Defending,
                 ),
-                physical: toFormValue(
-                  loadedPlayer.physical ??
+                strength: toFormValue(
+                  loadedPlayer.strength ??
+                    loadedPlayer.Strength ??
+                    loadedPlayer.physical ??
                     loadedPlayer.Physical ??
                     loadedPlayer.physicality ??
                     loadedPlayer.Physicality,
@@ -149,44 +147,24 @@ function PlayerFormPage({ mode = "create" }) {
                 "imageUrl",
                 "PhotoUrl",
                 "photoUrl",
-                "Position",
-                "position",
-                "Role",
-                "role",
-                "Team",
-                "team",
-                "Club",
-                "club",
-                "Nationality",
-                "nationality",
-                "Country",
-                "country",
-                "Age",
-                "age",
-                "Height",
-                "height",
-                "Weight",
-                "weight",
-                "Pace",
-                "pace",
+                "Shoot",
+                "shoot",
+                "Dribble",
+                "dribble",
+                "FirstTouch",
+                "firstTouch",
+                "BallControl",
+                "ballControl",
+                "Pass",
+                "pass",
                 "Speed",
                 "speed",
-                "Shooting",
-                "shooting",
-                "Finishing",
-                "finishing",
-                "Passing",
-                "passing",
-                "Dribbling",
-                "dribbling",
                 "Defense",
                 "defense",
                 "Defending",
                 "defending",
-                "Physical",
-                "physical",
-                "Physicality",
-                "physicality",
+                "Strength",
+                "strength",
               ]);
 
               setExtraFields(
@@ -301,6 +279,10 @@ function PlayerFormPage({ mode = "create" }) {
               : "Preencha os campos para criar um novo player com `POST /api/players`."}
           </p>
         </div>
+
+        {mode === "edit" && id ? (
+          <div className="inline-badge">ID do player: {id}</div>
+        ) : null}
 
         {error ? <div className="alert error">{error}</div> : null}
 

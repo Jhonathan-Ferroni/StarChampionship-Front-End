@@ -275,6 +275,16 @@ td {
   margin: 0 0 10px;
 }
 
+.inline-badge {
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #edf4ff;
+  color: #2553a6;
+  font-weight: 600;
+}
+
 .player-card,
 .team-card {
   padding: 18px;

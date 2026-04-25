@@ -4,9 +4,68 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import {
   getPlayerImageUrl,
-  getTeamCollection,
   normalizePlayers,
 } from "../utils/playerData";
+
+function buildTeamsLocally(players, numberOfTeams, selectedCaptains = {}, hasFixedCaptains = false) {
+  const teamCount = Math.max(2, Number(numberOfTeams) || 2);
+  const normalizedPlayers = [...players].sort(
+    (left, right) => (Number(right.overall) || 0) - (Number(left.overall) || 0),
+  );
+
+  const teams = Array.from({ length: teamCount }, (_, index) => ({
+    teamIndex: index,
+    players: [],
+    totalScore: 0,
+  }));
+
+  const assignedIds = new Set();
+
+  if (hasFixedCaptains) {
+    for (const [teamIndexKey, captainId] of Object.entries(selectedCaptains)) {
+      const teamIndex = Number(teamIndexKey);
+      const captain = normalizedPlayers.find(
+        (player) => player.idLabel === captainId,
+      );
+
+      if (!captain || Number.isNaN(teamIndex) || !teams[teamIndex]) {
+        continue;
+      }
+
+      teams[teamIndex].players.push(captain);
+      teams[teamIndex].totalScore += Number(captain.overall) || 0;
+      assignedIds.add(captain.idLabel);
+    }
+  }
+
+  for (const player of normalizedPlayers) {
+    if (assignedIds.has(player.idLabel)) {
+      continue;
+    }
+
+    const targetTeam = [...teams].sort(
+      (left, right) =>
+        left.totalScore - right.totalScore ||
+        left.players.length - right.players.length,
+    )[0];
+
+    targetTeam.players.push(player);
+    targetTeam.totalScore += Number(player.overall) || 0;
+  }
+
+  const totals = teams.map((team) => team.totalScore);
+  const score = totals.length > 0 ? Math.max(...totals) - Math.min(...totals) : 0;
+
+  return {
+    Teams: teams.map((team, index) => ({
+      TeamNumber: index + 1,
+      TotalScore: Number(team.totalScore.toFixed(2)),
+      Players: team.players,
+    })),
+    Score: Number(score.toFixed(2)),
+    GeneratedBy: "frontend-fallback",
+  };
+}
 
 function GeneratorPage() {
   const [players, setPlayers] = useState([]);
@@ -19,23 +78,21 @@ function GeneratorPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [generatorMode, setGeneratorMode] = useState("api");
 
   useEffect(() => {
     let mounted = true;
 
     async function fetchGeneratorPlayers() {
       try {
-        const response = await api.get("/api/generator/players");
-        let items = normalizePlayers(response.data);
-
-        if (items.length === 0) {
-          const fallbackResponse = await api.get("/api/players");
-          items = normalizePlayers(fallbackResponse.data);
-        }
+        const fallbackResponse = await api.get("/api/players");
+        const items = normalizePlayers(fallbackResponse.data);
 
         if (mounted) {
           setPlayers(items);
           setSelectedIds(items.map((player) => player.idLabel));
+          setGeneratorMode("frontend-fallback");
+          setError("");
         }
       } catch (requestError) {
         if (mounted) {
@@ -115,8 +172,25 @@ function GeneratorPage() {
     };
 
     try {
-      const response = await api.post("/api/generator/generate", payload);
-      setResult(response.data);
+      try {
+        const response = await api.post("/api/generator/generate", payload);
+        setGeneratorMode("api");
+        setResult(response.data);
+      } catch (requestError) {
+        if (requestError.response?.status === 404) {
+          setGeneratorMode("frontend-fallback");
+          setResult(
+            buildTeamsLocally(
+              selectedPlayers,
+              numberOfTeams,
+              selectedCaptains,
+              hasFixedCaptains,
+            ),
+          );
+        } else {
+          throw requestError;
+        }
+      }
     } catch (requestError) {
       setError(
         requestError.response?.data?.message ||
@@ -133,7 +207,10 @@ function GeneratorPage() {
       <form className="card" onSubmit={handleGenerate}>
         <div className="section-heading">
           <h2>Generator</h2>
-          <p>Selecione players e gere times usando `POST /api/generator/generate`.</p>
+          <p>
+            Selecione players e gere times. Quando o backend de generator nao
+            estiver disponivel, o app usa um balanceamento local.
+          </p>
         </div>
 
         <div className="card-row">
@@ -252,14 +329,14 @@ function GeneratorPage() {
       <div className="card">
         <div className="section-heading">
           <h2>Resultado</h2>
-          <p>Resposta esperada: `Teams` e `Score`.</p>
+          <p>Modo atual: {generatorMode === "api" ? "API" : "Fallback local"}.</p>
         </div>
 
         {result ? (
           <div className="page-grid">
-            {getTeamCollection(result).length > 0 ? (
+            {Array.isArray(result.Teams) && result.Teams.length > 0 ? (
               <div className="team-result-grid">
-                {getTeamCollection(result).map((team, index) => (
+                {result.Teams.map((team, index) => (
                   <article key={index} className="team-card">
                     <h3>Time {index + 1}</h3>
                     <pre className="result-box light">

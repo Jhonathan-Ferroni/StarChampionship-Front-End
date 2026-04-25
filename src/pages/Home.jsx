@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { normalizePlayers } from "../utils/playerData";
 
 function HomePage() {
   const [info, setInfo] = useState(null);
@@ -14,25 +15,43 @@ function HomePage() {
 
     async function fetchHomeData() {
       try {
-        const [infoResponse, healthResponse] = await Promise.allSettled([
-          api.get("/api/home"),
-          api.get("/api/home/health"),
-        ]);
+        const response = await api.get("/api/players");
+        const players = normalizePlayers(response.data);
 
         if (!mounted) {
           return;
         }
 
-        if (infoResponse.status === "fulfilled") {
-          setInfo(infoResponse.value.data);
-        }
+        setInfo({
+          totalPlayers: players.length,
+          withImage: players.filter((player) => player.imageUrl).length,
+          averageOverall:
+            players.length > 0
+              ? (
+                  players.reduce(
+                    (total, player) =>
+                      total + (Number(player.overall) || 0),
+                    0,
+                  ) / players.length
+                ).toFixed(2)
+              : "0.00",
+        });
 
-        if (healthResponse.status === "fulfilled") {
-          setHealth(healthResponse.value.data);
-        }
-
-        if (infoResponse.status === "rejected" && healthResponse.status === "rejected") {
+        setHealth({
+          apiStatus: "online",
+          playersEndpoint: "/api/players",
+          generatorMode: "frontend fallback",
+        });
+        setError("");
+      } catch {
+        if (mounted) {
           setError("Nao foi possivel carregar os dados iniciais da aplicacao.");
+          setInfo({ totalPlayers: 0, withImage: 0, averageOverall: "0.00" });
+          setHealth({
+            apiStatus: "offline",
+            playersEndpoint: "/api/players",
+            generatorMode: "frontend fallback",
+          });
         }
       } finally {
         if (mounted) {
@@ -76,7 +95,7 @@ function HomePage() {
         <div className="card">
           <div className="section-heading">
             <h2>App</h2>
-            <p>Informacoes vindas de `GET /api/home`.</p>
+            <p>Resumo calculado a partir de `GET /api/players`.</p>
           </div>
 
           {loading ? (
@@ -89,7 +108,7 @@ function HomePage() {
         <div className="card">
           <div className="section-heading">
             <h2>Health</h2>
-            <p>Status retornado por `GET /api/home/health`.</p>
+            <p>Status derivado dos endpoints que realmente existem no backend.</p>
           </div>
 
           {loading ? (
