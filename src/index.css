@@ -1,0 +1,263 @@
+/* File: src/index.css */
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #132238;
+  background:
+    radial-gradient(circle at top, rgba(63, 140, 255, 0.14), transparent 28%),
+    linear-gradient(180deg, #f4f8ff 0%, #eef3fb 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  color: #1357d6;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+#root {
+  width: 100%;
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.topbar h1,
+.section-heading h2,
+.login-hero h2 {
+  margin: 0;
+}
+
+.topbar p,
+.section-heading p,
+.login-hero p {
+  margin: 8px 0 0;
+  color: #4d6077;
+}
+
+.topbar-actions,
+.nav-links,
+.card-row,
+.actions-cell {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.page-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.two-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.login-page {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  align-items: center;
+  min-height: 70vh;
+}
+
+.login-hero,
+.card {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(113, 138, 176, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 20px 55px rgba(19, 34, 56, 0.08);
+  padding: 24px;
+}
+
+.login-hero {
+  padding: 40px;
+}
+
+.login-card {
+  width: min(420px, 100%);
+  justify-self: end;
+}
+
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dbe8ff;
+  color: #1348a4;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.field,
+.checkbox-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.field span,
+.checkbox-field span,
+.detail-item dt {
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #c8d4e7;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.checkbox-field {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+}
+
+.primary-button {
+  background: #1357d6;
+  color: #fff;
+}
+
+.secondary-button {
+  background: #ecf2ff;
+  color: #1d3f7a;
+}
+
+.danger-button {
+  background: #fff1f2;
+  color: #b42318;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.alert.error {
+  background: #fff1f2;
+  color: #b42318;
+  border: 1px solid #fecdd3;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e4ebf5;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 20px 0 0;
+}
+
+.detail-item {
+  padding: 14px;
+  border-radius: 14px;
+  background: #f7faff;
+}
+
+.detail-item dd {
+  margin: 8px 0 0;
+  color: #334155;
+}
+
+.player-picker {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.result-box {
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #e2e8f0;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .login-page,
+  .two-columns,
+  .topbar {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .login-card {
+    justify-self: stretch;
+  }
+}
