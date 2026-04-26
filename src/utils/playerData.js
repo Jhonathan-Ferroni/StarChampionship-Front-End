@@ -110,6 +110,7 @@ export function normalizePlayer(rawPlayer, index = 0) {
   const ballControl = pickFirst(player, PLAYER_ALIAS_GROUPS.ballControl);
   const pass = pickFirst(player, PLAYER_ALIAS_GROUPS.pass);
   const speed = pickFirst(player, PLAYER_ALIAS_GROUPS.speed);
+  const defense = pickFirst(player, PLAYER_ALIAS_GROUPS.defense);
   const strength = pickFirst(player, PLAYER_ALIAS_GROUPS.strength);
 
   return {
@@ -127,6 +128,7 @@ export function normalizePlayer(rawPlayer, index = 0) {
     ballControl,
     pass,
     speed,
+    defense,
     strength,
   };
 }

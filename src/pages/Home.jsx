@@ -29,8 +29,7 @@ function HomePage() {
             players.length > 0
               ? formatOverall(
                   players.reduce(
-                    (total, player) =>
-                      total + (Number(player.overall) || 0),
+                    (total, player) => total + (Number(player.overall) || 0),
                     0,
                   ) / players.length,
                   "0",
@@ -72,11 +71,10 @@ function HomePage() {
     <section className="page-grid">
       <div className="hero-card">
         <div>
-          <span className="eyebrow">Painel</span>
-          <h2>Central do StarChampionship</h2>
+          <h2 className="eyebrow">StarChampionship</h2>
           <p>
-            Acesse os players, acompanhe a API e monte os times com uma navegação
-            mais direta.
+            Crie, edite e organize seus jogadores para gerar times mais
+            equilibrados no seu futebol!
           </p>
         </div>
 
@@ -85,7 +83,7 @@ function HomePage() {
             Ver players
           </Link>
           <Link to="/generator" className="secondary-button">
-            Abrir generator
+            Abrir Gerador
           </Link>
         </div>
       </div>
@@ -95,27 +93,29 @@ function HomePage() {
       <div className="stats-grid">
         <div className="card">
           <div className="section-heading">
-            <h2>App</h2>
-            <p>Resumo calculado a partir de `GET /api/players`.</p>
+            <h2>Geral</h2>
           </div>
 
           {loading ? (
             <p>Carregando informacoes...</p>
           ) : (
-            <pre className="result-box light">{JSON.stringify(info, null, 2)}</pre>
+            <pre className="result-box light">
+              {JSON.stringify(info, null, 2)}
+            </pre>
           )}
         </div>
 
         <div className="card">
           <div className="section-heading">
             <h2>Health</h2>
-            <p>Status derivado dos endpoints que realmente existem no backend.</p>
           </div>
 
           {loading ? (
             <p>Carregando health check...</p>
           ) : (
-            <pre className="result-box light">{JSON.stringify(health, null, 2)}</pre>
+            <pre className="result-box light">
+              {JSON.stringify(health, null, 2)}
+            </pre>
           )}
         </div>
       </div>

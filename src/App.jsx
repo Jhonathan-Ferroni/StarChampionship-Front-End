@@ -3,6 +3,7 @@ import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import PlayersListPage from "./pages/PlayersList";
+import SheetsPage from "./pages/Sheets";
 import PlayerDetailsPage from "./pages/PlayerDetails";
 import PlayerFormPage from "./pages/PlayerForm";
 import GeneratorPage from "./pages/Generator";
@@ -34,9 +35,10 @@ function AppShell({ children }) {
           <div className="topbar-actions">
             <nav className="nav-links" aria-label="Navegacao principal">
               <Link to="/">Home</Link>
-              <Link to="/players">Players</Link>
-              <Link to="/players/new">Novo player</Link>
-              <Link to="/generator">Generator</Link>
+              <Link to="/players">Jogadores</Link>
+              <Link to="/players/sheets">Planilha</Link>
+              <Link to="/players/new">Novo jogador</Link>
+              <Link to="/generator">Gerador</Link>
             </nav>
 
             <button type="button" className="secondary-button" onClick={logout}>
@@ -77,6 +79,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PlayerFormPage mode="create" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players/sheets"
+          element={
+            <ProtectedRoute>
+              <SheetsPage />
             </ProtectedRoute>
           }
         />

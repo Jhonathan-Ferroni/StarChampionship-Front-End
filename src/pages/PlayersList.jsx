@@ -71,7 +71,6 @@ function PlayersListPage() {
     <section className="page-grid">
       <div className="section-heading">
         <h2>Players</h2>
-        <p>Lista completa dos jogadores retornados por `GET /api/players`.</p>
       </div>
 
       {error ? <div className="alert error">{error}</div> : null}
@@ -89,6 +88,9 @@ function PlayersListPage() {
               <Link to="/players/new" className="primary-button">
                 Novo player
               </Link>
+              <Link to="/players/sheets" className="secondary-button">
+                Planilha
+              </Link>
             </div>
           </div>
 
@@ -101,7 +103,10 @@ function PlayersListPage() {
                   <div className="player-card-header">
                     <div className="player-thumb">
                       {getPlayerImageUrl(player) ? (
-                        <img src={getPlayerImageUrl(player)} alt={player.name} />
+                        <img
+                          src={getPlayerImageUrl(player)}
+                          alt={player.name}
+                        />
                       ) : (
                         <span>{player.name.slice(0, 1).toUpperCase()}</span>
                       )}
@@ -119,7 +124,11 @@ function PlayersListPage() {
                   <div className="player-meta">
                     <strong>Overall {formatOverall(player.overall)}</strong>
                     {player.imageUrl ? (
-                      <a href={player.imageUrl} target="_blank" rel="noreferrer">
+                      <a
+                        href={player.imageUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         Abrir imagem
                       </a>
                     ) : (
