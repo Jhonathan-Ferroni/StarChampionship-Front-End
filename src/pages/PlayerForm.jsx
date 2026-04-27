@@ -270,6 +270,9 @@ function PlayerFormPage({ mode = "create" }) {
       templatePlayer,
     );
 
+    delete payload.id;
+    delete payload.Id;
+
     try {
       if (mode === "edit" && id) {
         await api.put(`/api/players/${id}`, payload);

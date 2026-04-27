@@ -223,7 +223,51 @@ function SheetsPage() {
                 <tbody>
                   {sortedPlayers.map((player) => (
                     <tr key={player.idLabel}>
-                      <td className="sheet-name-cell">{player.name}</td>
+                      <td className="sheet-name-cell">
+                        {/* Container flex para alinhar a imagem e o texto lado a lado */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                          }}
+                        >
+                          {player.imageUrl ? (
+                            <img
+                              src={player.imageUrl}
+                              alt={player.name}
+                              style={{
+                                width: "64px",
+                                height: "64px",
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                flexShrink: 0,
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: "64px",
+                                height: "64px",
+                                borderRadius: "50%",
+                                backgroundColor: "#e2e8f0",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                color: "#64748b",
+                                flexShrink: 0,
+                              }}
+                            >
+                              {player.name
+                                ? player.name.charAt(0).toUpperCase()
+                                : "?"}
+                            </div>
+                          )}
+                          <span>{player.name}</span>
+                        </div>
+                      </td>
                       <td>{formatOverall(player.speed)}</td>
                       <td>{formatOverall(player.shoot)}</td>
                       <td>{formatOverall(player.pass)}</td>
