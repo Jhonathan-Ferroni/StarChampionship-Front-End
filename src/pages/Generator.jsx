@@ -10,7 +10,12 @@ import {
   normalizePlayers,
 } from "../utils/playerData";
 
-function buildTeamsLocally(players, numberOfTeams, selectedCaptains = {}, hasFixedCaptains = false) {
+function buildTeamsLocally(
+  players,
+  numberOfTeams,
+  selectedCaptains = {},
+  hasFixedCaptains = false,
+) {
   const teamCount = Math.max(2, Number(numberOfTeams) || 2);
   const normalizedPlayers = [...players].sort(
     (left, right) => (Number(right.overall) || 0) - (Number(left.overall) || 0),
@@ -57,7 +62,8 @@ function buildTeamsLocally(players, numberOfTeams, selectedCaptains = {}, hasFix
   }
 
   const totals = teams.map((team) => team.totalScore);
-  const score = totals.length > 0 ? Math.max(...totals) - Math.min(...totals) : 0;
+  const score =
+    totals.length > 0 ? Math.max(...totals) - Math.min(...totals) : 0;
 
   return {
     Teams: teams.map((team, index) => ({
@@ -166,7 +172,14 @@ function GeneratorPage() {
                 (player) => player.idLabel === captainId,
               );
 
-              return [teamIndex, captain?.name ?? captainId];
+              // CORREÇÃO 1: Enviando o ID numérico do capitão, e não o nome, para o C# conseguir ler
+              const numericCaptainId = Number(captain?.id ?? captainId);
+              return [
+                teamIndex,
+                String(
+                  Number.isNaN(numericCaptainId) ? captainId : numericCaptainId,
+                ),
+              ];
             }),
         )
       : undefined;
@@ -184,7 +197,8 @@ function GeneratorPage() {
 
     try {
       try {
-        const response = await api.post("/api/generator/generate", payload);
+        // CORREÇÃO 2: Ajustando a rota para bater exatamente com a gerada pelo C#
+        const response = await api.post("/api/GeneratorApi/generate", payload);
         setGeneratorMode("api");
         setResult(response.data);
       } catch (requestError) {
@@ -218,7 +232,9 @@ function GeneratorPage() {
       <div className="card generator-result-panel">
         <div className="section-heading">
           <h2>Resultado</h2>
-          <p>Modo atual: {generatorMode === "api" ? "API" : "Fallback local"}.</p>
+          <p>
+            Modo atual: {generatorMode === "api" ? "API" : "Fallback local"}.
+          </p>
         </div>
 
         {result ? (
@@ -249,11 +265,18 @@ function GeneratorPage() {
             {teams.length > 0 ? (
               <div className="team-result-grid">
                 {teams.map((team, index) => {
-                  const teamPlayers = normalizePlayers(team.Players ?? team.players ?? []);
-                  const totalScore = Number(team.TotalScore ?? team.totalScore ?? 0);
+                  const teamPlayers = normalizePlayers(
+                    team.Players ?? team.players ?? [],
+                  );
+                  const totalScore = Number(
+                    team.TotalScore ?? team.totalScore ?? 0,
+                  );
 
                   return (
-                    <article key={index} className="team-card generator-team-card">
+                    <article
+                      key={index}
+                      className="team-card generator-team-card"
+                    >
                       <div className="generator-team-header">
                         <div>
                           <h3>Time {team.TeamNumber ?? index + 1}</h3>
@@ -268,7 +291,10 @@ function GeneratorPage() {
 
                       <div className="team-player-grid">
                         {teamPlayers.map((player, playerIndex) => {
-                          const normalizedPlayer = normalizePlayer(player, playerIndex);
+                          const normalizedPlayer = normalizePlayer(
+                            player,
+                            playerIndex,
+                          );
 
                           return (
                             <article
@@ -282,13 +308,20 @@ function GeneratorPage() {
                                     alt={normalizedPlayer.name}
                                   />
                                 ) : (
-                                  <span>{normalizedPlayer.name.slice(0, 1).toUpperCase()}</span>
+                                  <span>
+                                    {normalizedPlayer.name
+                                      .slice(0, 1)
+                                      .toUpperCase()}
+                                  </span>
                                 )}
                               </div>
 
                               <div className="result-player-copy">
                                 <strong>{normalizedPlayer.name}</strong>
-                                <span>Overall {formatOverall(normalizedPlayer.overall)}</span>
+                                <span>
+                                  Overall{" "}
+                                  {formatOverall(normalizedPlayer.overall)}
+                                </span>
                               </div>
                             </article>
                           );
@@ -323,7 +356,9 @@ function GeneratorPage() {
           <button
             type="button"
             className="secondary-button"
-            onClick={() => setSelectedIds(players.map((player) => player.idLabel))}
+            onClick={() =>
+              setSelectedIds(players.map((player) => player.idLabel))
+            }
           >
             Selecionar todos
           </button>
@@ -415,7 +450,9 @@ function GeneratorPage() {
                 <span>Capitao do time {index + 1}</span>
                 <select
                   value={selectedCaptains[index] ?? ""}
-                  onChange={(event) => setCaptainForTeam(index, event.target.value)}
+                  onChange={(event) =>
+                    setCaptainForTeam(index, event.target.value)
+                  }
                 >
                   <option value="">Selecionar</option>
                   {selectedPlayers.map((player) => (
