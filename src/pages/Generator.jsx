@@ -24,7 +24,7 @@ function buildTeamsLocally(
   const teams = Array.from({ length: teamCount }, (_, index) => ({
     teamIndex: index,
     players: [],
-    totalScore: 0,
+    totalOverall: 0,
   }));
 
   const assignedIds = new Set();
@@ -41,7 +41,7 @@ function buildTeamsLocally(
       }
 
       teams[teamIndex].players.push(captain);
-      teams[teamIndex].totalScore += Number(captain.overall) || 0;
+      teams[teamIndex].totalOverall += Number(captain.overall) || 0;
       assignedIds.add(captain.idLabel);
     }
   }
@@ -53,22 +53,22 @@ function buildTeamsLocally(
 
     const targetTeam = [...teams].sort(
       (left, right) =>
-        left.totalScore - right.totalScore ||
+        left.totalOverall - right.totalOverall ||
         left.players.length - right.players.length,
     )[0];
 
     targetTeam.players.push(player);
-    targetTeam.totalScore += Number(player.overall) || 0;
+    targetTeam.totalOverall += Number(player.overall) || 0;
   }
 
-  const totals = teams.map((team) => team.totalScore);
+  const totals = teams.map((team) => team.totalOverall);
   const score =
     totals.length > 0 ? Math.max(...totals) - Math.min(...totals) : 0;
 
   return {
     Teams: teams.map((team, index) => ({
       TeamNumber: index + 1,
-      TotalScore: Number(team.totalScore.toFixed(2)),
+      totalOverall: Number(team.totalOverall.toFixed(2)),
       Players: team.players,
     })),
     Score: Number(score.toFixed(2)),
@@ -268,9 +268,7 @@ function GeneratorPage() {
                   const teamPlayers = normalizePlayers(
                     team.Players ?? team.players ?? [],
                   );
-                  const totalScore = Number(
-                    team.TotalScore ?? team.totalScore ?? 0,
-                  );
+                  const totalOverall = Number(team.totalOverall ?? 0);
 
                   return (
                     <article
@@ -285,7 +283,7 @@ function GeneratorPage() {
 
                         <div className="generator-team-score">
                           <span>Total</span>
-                          <strong>{Math.round(totalScore)}</strong>
+                          <strong>{Math.round(totalOverall)}</strong>
                         </div>
                       </div>
 

@@ -630,6 +630,143 @@ tbody tr td:nth-child(even) {
   font-weight: 600;
 }
 
+/* Container que alinha a carta e o botão */
+.ultimate-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem auto;
+}
+
+/* O formato principal da carta */
+.ultimate-card {
+  width: 260px;
+  background: linear-gradient(
+    135deg,
+    #d4af37 0%,
+    #aa7c11 100%
+  ); /* Cor base (Ajuste para bronze/ouro) */
+  color: #222;
+  font-family: "Arial Black", sans-serif; /* Use a fonte que preferir */
+  padding: 1.5rem 1rem;
+  /* O segredo do formato da carta: clip-path corta as pontas */
+  clip-path: polygon(
+    10% 0,
+    90% 0,
+    100% 10%,
+    100% 90%,
+    90% 100%,
+    10% 100%,
+    0 90%,
+    0 10%
+  );
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Borda interna decorativa (opcional, imita a carta original) */
+.ultimate-card::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  clip-path: polygon(
+    10% 0,
+    90% 0,
+    100% 10%,
+    100% 90%,
+    90% 100%,
+    10% 100%,
+    0 90%,
+    0 10%
+  );
+  pointer-events: none;
+}
+
+.ultimate-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  height: 120px;
+}
+
+.ultimate-card-ovr {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ultimate-card-ovr .ovr-number {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.ultimate-card-ovr .ovr-label {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+.ultimate-card-image img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px; /* Bordas arredondadas na foto conforme sua imagem */
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.placeholder-image {
+  width: 110px;
+  height: 110px;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border-radius: 10px;
+}
+
+.ultimate-card-name {
+  text-align: center;
+  font-size: 1.1rem;
+  margin: 10px 0;
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 5px;
+}
+
+.ultimate-card-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stats-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
 .player-card,
 .team-card {
   padding: 18px;

@@ -2,17 +2,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
-import {
-  buildPlayerPayload,
-  formatFieldLabel,
-  isOmittedPlayerField,
-  normalizePlayers,
-  toFormValue,
-} from "../utils/playerData";
+import { toFormValue } from "../utils/playerData";
 
 const fieldGroups = [
   {
-    title: "Basico",
+    title: "Básico",
     fields: [
       {
         key: "name",
@@ -30,7 +24,7 @@ const fieldGroups = [
     ],
   },
   {
-    title: "Tecnica",
+    title: "Técnica",
     fields: [
       { key: "shoot", label: "Shoot", type: "number" },
       { key: "dribble", label: "Dribble", type: "number" },
@@ -49,6 +43,7 @@ const fieldGroups = [
   },
 ];
 
+// Inicia o estado do formulário apenas com as chaves exatas mapeadas
 const baseFormValues = fieldGroups
   .flatMap((group) => group.fields)
   .reduce((accumulator, field) => ({ ...accumulator, [field.key]: "" }), {});
@@ -56,193 +51,65 @@ const baseFormValues = fieldGroups
 function PlayerFormPage({ mode = "create" }) {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [player, setPlayer] = useState(baseFormValues);
-  const [originalPlayer, setOriginalPlayer] = useState({});
-  const [templatePlayer, setTemplatePlayer] = useState({});
-  const [extraFields, setExtraFields] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(mode === "edit");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
 
-    async function prepareForm() {
-      try {
+    async function loadPlayer() {
+      if (mode === "edit" && id) {
         try {
-          const sampleResponse = await api.get("/api/players");
-          const samplePlayers = normalizePlayers(sampleResponse.data);
+          const response = await api.get(`/api/players/${id}`);
+          const loadedPlayer = response.data ?? {};
 
-          if (mounted && samplePlayers.length > 0) {
-            setTemplatePlayer(samplePlayers[0].__raw ?? {});
-          }
-        } catch {
           if (mounted) {
-            setTemplatePlayer({});
+            // Mapeia estritamente os campos do C# (lidando com as variações de PascalCase e camelCase)
+            setPlayer({
+              name: toFormValue(loadedPlayer.name ?? loadedPlayer.Name),
+              imageUrl: toFormValue(
+                loadedPlayer.imageUrl ?? loadedPlayer.ImageUrl,
+              ),
+              shoot: toFormValue(loadedPlayer.shoot ?? loadedPlayer.Shoot),
+              dribble: toFormValue(
+                loadedPlayer.dribble ?? loadedPlayer.Dribble,
+              ),
+              firstTouch: toFormValue(
+                loadedPlayer.firstTouch ?? loadedPlayer.FirstTouch,
+              ),
+              ballControl: toFormValue(
+                loadedPlayer.ballControl ?? loadedPlayer.BallControl,
+              ),
+              pass: toFormValue(loadedPlayer.pass ?? loadedPlayer.Pass),
+              speed: toFormValue(loadedPlayer.speed ?? loadedPlayer.Speed),
+              defense: toFormValue(
+                loadedPlayer.defense ?? loadedPlayer.Defense,
+              ),
+              strength: toFormValue(
+                loadedPlayer.strength ?? loadedPlayer.Strength,
+              ),
+            });
           }
-        }
-
-        if (mode === "edit" && id) {
-          try {
-            const response = await api.get(`/api/players/${id}`);
-            const loadedPlayer = response.data ?? {};
-
-            if (mounted) {
-              setOriginalPlayer(loadedPlayer);
-              setPlayer((currentPlayer) => ({
-                ...currentPlayer,
-                ...Object.fromEntries(
-                  Object.keys(baseFormValues).map((key) => [
-                    key,
-                    toFormValue(loadedPlayer[key]),
-                  ]),
-                ),
-                name: toFormValue(
-                  loadedPlayer.name ??
-                    loadedPlayer.Name ??
-                    loadedPlayer.playerName ??
-                    loadedPlayer.PlayerName,
-                ),
-                overall: toFormValue(
-                  loadedPlayer.overall ?? loadedPlayer.Overall,
-                ),
-                imageUrl: toFormValue(
-                  loadedPlayer.imageUrl ??
-                    loadedPlayer.ImageUrl ??
-                    loadedPlayer.photoUrl ??
-                    loadedPlayer.PhotoUrl,
-                ),
-                shoot: toFormValue(
-                  loadedPlayer.shoot ??
-                    loadedPlayer.Shoot ??
-                    loadedPlayer.shooting ??
-                    loadedPlayer.Shooting ??
-                    loadedPlayer.finishing ??
-                    loadedPlayer.Finishing,
-                ),
-                dribble: toFormValue(
-                  loadedPlayer.dribble ??
-                    loadedPlayer.Dribble ??
-                    loadedPlayer.dribbling ??
-                    loadedPlayer.Dribbling,
-                ),
-                firstTouch: toFormValue(
-                  loadedPlayer.firstTouch ?? loadedPlayer.FirstTouch,
-                ),
-                ballControl: toFormValue(
-                  loadedPlayer.ballControl ?? loadedPlayer.BallControl,
-                ),
-                pass: toFormValue(
-                  loadedPlayer.pass ??
-                    loadedPlayer.Pass ??
-                    loadedPlayer.passing ??
-                    loadedPlayer.Passing,
-                ),
-                speed: toFormValue(
-                  loadedPlayer.speed ??
-                    loadedPlayer.Speed ??
-                    loadedPlayer.pace ??
-                    loadedPlayer.Pace,
-                ),
-                defense: toFormValue(
-                  loadedPlayer.defense ??
-                    loadedPlayer.Defense ??
-                    loadedPlayer.defending ??
-                    loadedPlayer.Defending,
-                ),
-                strength: toFormValue(
-                  loadedPlayer.strength ??
-                    loadedPlayer.Strength ??
-                    loadedPlayer.physical ??
-                    loadedPlayer.Physical ??
-                    loadedPlayer.physicality ??
-                    loadedPlayer.Physicality,
-                ),
-              }));
-
-              const knownKeys = new Set([
-                ...Object.keys(baseFormValues),
-                "Name",
-                "name",
-                "PlayerName",
-                "playerName",
-                "Overall",
-                "overall",
-                "ImageUrl",
-                "imageUrl",
-                "PhotoUrl",
-                "photoUrl",
-                "Shoot",
-                "shoot",
-                "Dribble",
-                "dribble",
-                "FirstTouch",
-                "firstTouch",
-                "BallControl",
-                "ballControl",
-                "Pass",
-                "pass",
-                "Speed",
-                "speed",
-                "Defense",
-                "defense",
-                "Defending",
-                "defending",
-                "Strength",
-                "strength",
-              ]);
-
-              setExtraFields(
-                Object.entries(loadedPlayer)
-                  .filter(
-                    ([key, value]) =>
-                      !isOmittedPlayerField(key) &&
-                      !knownKeys.has(key) &&
-                      value !== null &&
-                      value !== undefined &&
-                      typeof value !== "object",
-                  )
-                  .map(([key, value]) => ({
-                    key,
-                    label: formatFieldLabel(key),
-                    type: typeof value === "number" ? "number" : "text",
-                  })),
-              );
-
-              setPlayer((currentPlayer) => ({
-                ...currentPlayer,
-                ...Object.fromEntries(
-                  Object.entries(loadedPlayer)
-                    .filter(
-                      ([key, value]) =>
-                        !isOmittedPlayerField(key) &&
-                        !knownKeys.has(key) &&
-                        value !== null &&
-                        value !== undefined &&
-                        typeof value !== "object",
-                    )
-                    .map(([key, value]) => [key, toFormValue(value)]),
-                ),
-              }));
-            }
-          } catch (requestError) {
-            if (mounted) {
-              setError(
-                requestError.response?.data?.message ||
-                  requestError.response?.data?.title ||
-                  "Nao foi possivel carregar o player para edicao.",
-              );
-            }
+        } catch (requestError) {
+          if (mounted) {
+            setError(
+              requestError.response?.data?.message ||
+                requestError.response?.data?.title ||
+                "Não foi possível carregar o player para edição.",
+            );
           }
+        } finally {
+          if (mounted) setLoading(false);
         }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      } else {
+        setLoading(false);
       }
     }
 
-    prepareForm();
+    loadPlayer();
 
     return () => {
       mounted = false;
@@ -261,20 +128,25 @@ function PlayerFormPage({ mode = "create" }) {
     setSaving(true);
     setError("");
 
-    const payload = buildPlayerPayload(
-      {
-        ...player,
-        name: player.name.trim(),
-      },
-      originalPlayer,
-      templatePlayer,
-    );
-
-    delete payload.id;
-    delete payload.Id;
+    // Constrói o payload estrito garantindo que apenas os campos do modelo sejam enviados
+    // e convertendo os atributos numéricos corretamente. O Overall é omitido pois é calculado na API.
+    const payload = {
+      id: Number(id),
+      name: player.name.trim(),
+      imageUrl: player.imageUrl || null,
+      shoot: Number(player.shoot) || 0,
+      dribble: Number(player.dribble) || 0,
+      firstTouch: Number(player.firstTouch) || 0,
+      ballControl: Number(player.ballControl) || 0,
+      pass: Number(player.pass) || 0,
+      speed: Number(player.speed) || 0,
+      defense: Number(player.defense) || 0,
+      strength: Number(player.strength) || 0,
+    };
 
     try {
       if (mode === "edit" && id) {
+        // Se a API exigir o ID no corpo do PUT, adicione: payload.id = id;
         await api.put(`/api/players/${id}`, payload);
         navigate(`/players/${id}`, { replace: true });
       } else {
@@ -288,14 +160,14 @@ function PlayerFormPage({ mode = "create" }) {
       setError(
         requestError.response?.data?.message ||
           requestError.response?.data?.title ||
-          "Nao foi possivel salvar o player.",
+          "Não foi possível salvar o player.",
       );
       setSaving(false);
     }
   }
 
   if (loading) {
-    return <div className="card">Carregando formulario...</div>;
+    return <div className="card">Carregando formulário...</div>;
   }
 
   return (
@@ -337,26 +209,6 @@ function PlayerFormPage({ mode = "create" }) {
             </div>
           </section>
         ))}
-
-        {extraFields.length > 0 ? (
-          <section className="form-section">
-            <h3>Campos adicionais detectados na API</h3>
-            <div className="form-grid">
-              {extraFields.map((field) => (
-                <label key={field.key} className="field">
-                  <span>{field.label}</span>
-                  <input
-                    type={field.type}
-                    value={player[field.key] ?? ""}
-                    onChange={(event) =>
-                      handleChange(field.key, event.target.value)
-                    }
-                  />
-                </label>
-              ))}
-            </div>
-          </section>
-        ) : null}
 
         <div className="card-row">
           <Link to="/" className="secondary-button">
