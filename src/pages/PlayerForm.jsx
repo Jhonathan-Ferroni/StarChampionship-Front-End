@@ -131,7 +131,6 @@ function PlayerFormPage({ mode = "create" }) {
     // Constrói o payload estrito garantindo que apenas os campos do modelo sejam enviados
     // e convertendo os atributos numéricos corretamente. O Overall é omitido pois é calculado na API.
     const payload = {
-      id: Number(id),
       name: player.name.trim(),
       imageUrl: player.imageUrl || null,
       shoot: Number(player.shoot) || 0,
