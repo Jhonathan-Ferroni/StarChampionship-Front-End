@@ -145,7 +145,8 @@ function PlayerFormPage({ mode = "create" }) {
 
     try {
       if (mode === "edit" && id) {
-        // Se a API exigir o ID no corpo do PUT, adicione: payload.id = id;
+        // Se a API exigir o ID no corpo do PUT, adicione:
+        payload.id = Number(id);
         await api.put(`/api/players/${id}`, payload);
         navigate(`/players/${id}`, { replace: true });
       } else {
